@@ -13,14 +13,18 @@ def minmax(board, color, depth, alpha, beta):
             possible_moves = board.legal_moves(color)
             for [x, y] in possible_moves:
                 _board = simulate_turn(board, color, x, y)
-                alpha = minmax(_board, color, depth + 1, alpha, beta)
+                _alpha = minmax(_board, color, depth + 1, alpha, beta)
+                if _alpha > alpha:
+                    alpha = alpha
             return alpha
         else:
             # MIN
             possible_moves = board.legal_moves(color)
             for [x, y] in possible_moves:
                 _board = simulate_turn(board, 'W', x, y)
-                beta = minmax(_board, 'W', depth + 1, alpha, beta)
+                _beta = minmax(_board, 'W', depth + 1, alpha, beta)
+                if _beta < beta:
+                    beta = _beta
             return beta
 
 
@@ -39,7 +43,7 @@ def handle_current_move(legal_moves, board, color):
         _alpha = minmax(_board, color, 0, -9999999999999, 99999999999)
         if _alpha and _alpha > best_move_value:
             best_move_idx = idx
-    return  best_move_idx
+    return best_move_idx
 
 
 def make_move(the_board, color):
@@ -50,7 +54,7 @@ def make_move(the_board, color):
     :return: (int, int) tuple with x, y indexes of the move (remember: 0 is the first row/column)
     """
     legal_moves = the_board.legal_moves(color)
-    function_call = timer.FunctionTimer(handle_current_move, [legal_moves,the_board,color])
+    function_call = timer.FunctionTimer(handle_current_move, [legal_moves, the_board, color])
     idx = function_call.run(5)
     if not idx:
         print('FOUND SOLUTION')

@@ -2,30 +2,36 @@ import random
 
 from advsearch import timer
 
-
+n=8
+min_eval_board = -1 # min - 1
+max_eval_board = n * n + 4 * n + 4 + 1 # max + 1
 def minmax(board, color, depth, alpha, beta):
     # LIMITE DA PROFUNDIDADE
-    if depth == 50:
+    possible_moves = board.legal_moves(color)
+
+    if depth == 5 or len(possible_moves)==0 :
         return board.piece_count['B']
     else:
         # MAX
         if depth % 2 == 0:
-            possible_moves = board.legal_moves(color)
+            v=min_eval_board
             for [x, y] in possible_moves:
                 _board = simulate_turn(board, color, x, y)
-                _alpha = minmax(_board, color, depth + 1, alpha, beta)
-                if _alpha > alpha:
-                    alpha = alpha
-            return alpha
+                v = max(v,minmax(_board, color, depth + 1, alpha, beta))
+                alpha=max(alpha,v)
+                if beta <= alpha:
+                    break
+            return v
         else:
-            # MIN
-            possible_moves = board.legal_moves(color)
+            v=max_eval_board
             for [x, y] in possible_moves:
-                _board = simulate_turn(board, 'W', x, y)
-                _beta = minmax(_board, 'W', depth + 1, alpha, beta)
-                if _beta < beta:
-                    beta = _beta
-            return beta
+                _board = simulate_turn(board, color, x, y)
+                v = min(v,minmax(_board, color, depth + 1, alpha, beta))
+
+                beta=min(beta,v)
+                if beta <= beta:
+                    break
+            return v
 
 
 def simulate_turn(board, color, x, y):
@@ -46,6 +52,7 @@ def handle_current_move(legal_moves, board, color):
     return best_move_idx
 
 
+
 def make_move(the_board, color):
     """
     Returns an Othello move
@@ -57,6 +64,5 @@ def make_move(the_board, color):
     function_call = timer.FunctionTimer(handle_current_move, [legal_moves, the_board, color])
     idx = function_call.run(5)
     if not idx:
-        print('FOUND SOLUTION')
         return random.choice(legal_moves)
     return legal_moves[idx]

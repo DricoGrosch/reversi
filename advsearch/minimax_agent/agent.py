@@ -2,37 +2,44 @@ import random
 
 from advsearch import timer
 
-n=8
-min_eval_board = -1 # min - 1
-max_eval_board = n * n + 4 * n + 4 + 1 # max + 1
-def minmax(board, color, depth, alpha, beta):
-    # LIMITE DA PROFUNDIDADE
+# alpha é a melhor alternativa para o MAX nesse determinado nó
+# beta é a melhor alternativa para o MIN nesse determinado nó
+
+def max_value(possible_moves,board, color, depth, alpha, beta):
+    max_score = -999999999
+    for [x, y] in possible_moves:
+        _board = simulate_turn(board, color, x, y)
+        min_score = mini_max(_board, color, depth + 1, alpha, beta)
+        max_score = max(max_score, min_score)
+        alpha = max(alpha, max_score)
+        if beta <= alpha:
+            break
+    return max_score
+
+def min_value(possible_moves,board, color, depth, alpha, beta):
+    min_score = 999999999
+    for [x, y] in possible_moves:
+        _board = simulate_turn(board, color, x, y)
+        max_score = mini_max(_board, color, depth + 1, alpha, beta)
+        min_score = min(min_score, max_score)
+        beta = min(beta, min_score)
+        if beta <= alpha:
+            break
+    return min_score
+
+
+
+def mini_max(board, color, depth, alpha, beta):
+
     possible_moves = board.legal_moves(color)
-
-    if depth == 5 or len(possible_moves)==0 :
+    if depth == 4 or len(possible_moves)==0 :
         return board.piece_count['B']
+
+    # OS PARES SÃO PRO MAX
+    if depth % 2 == 0:
+        return max_value(possible_moves,board, color, depth, alpha, beta)
     else:
-        # MAX
-        if depth % 2 == 0:
-            v=min_eval_board
-            for [x, y] in possible_moves:
-                _board = simulate_turn(board, color, x, y)
-                v = max(v,minmax(_board, color, depth + 1, alpha, beta))
-                alpha=max(alpha,v)
-                if beta <= alpha:
-                    break
-            return v
-        else:
-            v=max_eval_board
-            for [x, y] in possible_moves:
-                _board = simulate_turn(board, color, x, y)
-                v = min(v,minmax(_board, color, depth + 1, alpha, beta))
-
-                beta=min(beta,v)
-                if beta <= beta:
-                    break
-            return v
-
+        return min_value(possible_moves,board, color, depth, alpha, beta)
 
 def simulate_turn(board, color, x, y):
     from advsearch.othello.board import from_string
@@ -46,7 +53,7 @@ def handle_current_move(legal_moves, board, color):
     best_move_idx = 0
     for idx, (x, y) in enumerate(legal_moves):
         _board = simulate_turn(board, color, x, y)
-        _alpha = minmax(_board, color, 0, -9999999999999, 99999999999)
+        _alpha = mini_max(_board, color, 0, -9999999999999, 99999999999)
         if _alpha and _alpha > best_move_value:
             best_move_idx = idx
     return best_move_idx
@@ -54,15 +61,12 @@ def handle_current_move(legal_moves, board, color):
 
 
 def make_move(the_board, color):
-    """
-    Returns an Othello move
-    :param the_board: a board.Board object with the current game state
-    :param color: a character indicating the color to make the move ('B' or 'W')
-    :return: (int, int) tuple with x, y indexes of the move (remember: 0 is the first row/column)
-    """
+
     legal_moves = the_board.legal_moves(color)
     function_call = timer.FunctionTimer(handle_current_move, [legal_moves, the_board, color])
     idx = function_call.run(5)
     if not idx:
         return random.choice(legal_moves)
+    print('FOUND SOLUTION')
+
     return legal_moves[idx]

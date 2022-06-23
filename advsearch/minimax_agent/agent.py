@@ -67,6 +67,4 @@ def make_move(the_board, color):
     idx = function_call.run(5)
     if not idx:
         return random.choice(legal_moves)
-    print('FOUND SOLUTION')
-
     return legal_moves[idx]

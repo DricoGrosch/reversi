@@ -65,9 +65,9 @@ class Server(object):
 
         illegal_count = [0, 0]  # counts the number of illegal move attempts
 
-        print(f'---- Current match: {self.player_dirs[0]} (B) x {self.player_dirs[1]} (W) ----')
-        print('Initial board:')
-        print(self.board.decorated_str())
+        # print(f'---- Current match: {self.player_dirs[0]} (B) x {self.player_dirs[1]} (W) ----')
+        # print('Initial board:')
+        # print(self.board.decorated_str())
 
         while True:  # runs until endgame
 
@@ -79,14 +79,14 @@ class Server(object):
             p1_score = sum([1 for char in str(self.board) if char == self.board.BLACK])
             p2_score = sum([1 for char in str(self.board) if char == self.board.WHITE])
 
-            print(f'---- Current match: {self.player_dirs[0]} (B) x {self.player_dirs[1]} (W) ----')
+            # print(f'---- Current match: {self.player_dirs[0]} (B) x {self.player_dirs[1]} (W) ----')
 
             # disqualify player if he attempts illegal moves 5 times in a row
             if illegal_count[player] >= 5:
-                print(f'Player {player+1} ({self.player_dirs[player]}) DISQUALIFIED! Too many illegal move attempts.')
-                print('End of game reached!')
-                print('Player 1 (B): %d' % p1_score)
-                print('Player 2 (W): %d' % p2_score)
+                # print(f'Player {player+1} ({self.player_dirs[player]}) DISQUALIFIED! Too many illegal move attempts.')
+                # print('End of game reached!')
+                # print('Player 1 (B): %d' % p1_score)
+                # print('Player 2 (W): %d' % p2_score)
 
                 self.result = 1 - player
                 self.finish = time.localtime()
@@ -149,18 +149,18 @@ class Server(object):
 
             if self.board.process_move((move_x, move_y), self.player_colors[player]):
                 illegal_count[player] = 0
-                print('Player %d move %d,%d accepted.' % (player + 1, move_x, move_y))
+                # print('Player %d move %d,%d accepted.' % (player + 1, move_x, move_y))
 
             else:
                 illegal_count[player] += 1
-                print('Player %d move %d,%d ILLEGAL!' % (player + 1,move_x, move_y))
+                # print('Player %d move %d,%d ILLEGAL!' % (player + 1,move_x, move_y))
 
             # waits the remaining time, if needed
             if self.pace - elapsed > 0:
                 time.sleep(self.pace - elapsed)
 
-            print('Current board:')
-            print(self.board.decorated_str(highlight=(move_y, move_x)))
+            # print('Current board:')
+            # print(self.board.decorated_str(highlight=(move_y, move_x)))
 
             # toggle player for next move
             player = 1 - player
@@ -231,7 +231,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     p1, p2 = args.players
-
-    s = Server(p1, p2, args.delay, args.history, args.output, args.pace)
-    s.run()
-    s.write_output()
+    for i in range(30):
+        s = Server(p1, p2, args.delay, args.history, args.output, args.pace)
+        s.run()
+        print('----------RESULTADOS----------')
+        s.write_output()
